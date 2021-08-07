@@ -1,10 +1,10 @@
 class foo { 
-    public String a;
+    public String a, b;
     public float a;
     private String b;
 
     public String getYes( float i, String q) {
-
+        String aux, aux2;
     }
 
     public static void main (String[] args) {

@@ -20,14 +20,10 @@ CLASS IDENTIFIER '{' classScope '}'
 ;
 
 classScope: /* empty */ 
-| PUBLIC STR IDENTIFIER ';' classScope
-| PUBLIC FLT IDENTIFIER ';' classScope
-| PRIVATE STR IDENTIFIER ';' classScope
-| PRIVATE FLT IDENTIFIER ';' classScope
-| PRIVATE STR IDENTIFIER '(' param ')' '{' '}' classScope
-| PUBLIC STR IDENTIFIER '(' param ')' '{' '}' classScope
-| PRIVATE FLT IDENTIFIER '(' param ')' '{' '}' classScope
-| PUBLIC FLT IDENTIFIER '(' param ')' '{' '}' classScope
+| PUBLIC variable ';' classScope
+| PRIVATE variable ';' classScope
+| PUBLIC method classScope
+| PRIVATE method classScope
 | PUBLIC mainMethod classScope
 ;
 
@@ -38,9 +34,29 @@ param : /* empty */
 
 paramExtend:/* empty */
 | ',' param
+ ;
 
+variable: /* empty */
+| STR IDENTIFIER variableExtend
+| FLT IDENTIFIER variableExtend
+;
+
+method: /* empty */
+| STR IDENTIFIER'(' param ')' '{' methodScope '}'
+| FLT IDENTIFIER '(' param ')' '{' methodScope '}' 
+
+variableExtend: /* empty */
+| ',' IDENTIFIER;
 
 mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{' '}'
+;
+
+methodScope: /* empty */
+| methodScope operations ';'
+;
+
+operations:
+variable
 ;
 
 
