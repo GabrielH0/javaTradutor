@@ -1,0 +1,8 @@
+version: '3'
+
+services: 
+    compiler:
+        build: .
+        container_name: javacomp
+        volumes: 
+            - "./:/usr/src/java"
