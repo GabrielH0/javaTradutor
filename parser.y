@@ -24,8 +24,21 @@ classScope: /* empty */
 | PUBLIC FLT IDENTIFIER ';' classScope
 | PRIVATE STR IDENTIFIER ';' classScope
 | PRIVATE FLT IDENTIFIER ';' classScope
+| PRIVATE STR IDENTIFIER '(' param ')' '{' '}' classScope
+| PUBLIC STR IDENTIFIER '(' param ')' '{' '}' classScope
+| PRIVATE FLT IDENTIFIER '(' param ')' '{' '}' classScope
+| PUBLIC FLT IDENTIFIER '(' param ')' '{' '}' classScope
 | PUBLIC mainMethod classScope
 ;
+
+param : /* empty */ 
+| FLT IDENTIFIER paramExtend  
+| STR IDENTIFIER paramExtend
+;
+
+paramExtend:/* empty */
+| ',' param
+
 
 mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{' '}'
 ;

@@ -1,0 +1,14 @@
+class foo { 
+    public String a;
+    public float a;
+    private String b;
+
+    public String getYes( float i, String q) {
+
+    }
+
+    public static void main (String[] args) {
+        
+    }
+
+}
