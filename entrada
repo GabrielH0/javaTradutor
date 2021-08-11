@@ -1,9 +1,9 @@
-class foo { 
+class Main { 
     public String a, b;
     public float a;
     private String b;
 
-    public String getYes( float i, String q) {
+    public String method( float i, String q) {
         String aux, aux2;
         aux = "String029103";
         aux = 1.2;
