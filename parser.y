@@ -67,22 +67,30 @@ variable_declaration
 exp :  NUMBER_FLOAT
 | TEXT
 | IDENTIFIER 
+| IDENTIFIER '.' IDENTIFIER'(' expList ')'
 | NEW IDENTIFIER '(' ')'
 | exp MAIORIGUAL exp
 | exp MENORIGUAL exp
-| exp '<' 
-| exp '=' 
-| exp '>' 
-| exp '+' 
-| exp '-' 
-| exp '*' 
-| exp '/' 
+| exp '<' exp
+| exp '=' exp
+| exp '>' exp
+| exp '+' exp
+| exp '-' exp
+| exp '*' exp
+| exp '/' exp
 | exp '&' '&' exp
 | exp '|' '|' exp
 | '!' exp
 | exp IGUAL exp
 | exp DIFERENTE exp
-| 
+;
+
+expList: /* empty */
+| exp expExtended
+;
+
+expExtended: /* empty */
+| ',' exp
 ;
 
 %%

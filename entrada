@@ -12,6 +12,7 @@ class foo {
         aux = aux || aux;
         aux = aux && aux;
         aux = aux == aux;
+        aux = foo.getYes(a,a + 1.0);
     }
 
     public static void main (String[] args) {
