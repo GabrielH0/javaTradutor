@@ -19,12 +19,14 @@ void {printf("tipo "); return(VOID);}
 String {printf("tipo "); return(STR);}
 float {printf("tipo "); return(FLT);}
 new {printf("new "); return(NEW);}
+for {printf("for "); return(FOR);}
 [-+]?{DIGIT}*"."{DIGIT}+ { printf("Real "); return(NUMBER_FLOAT);   }
 {TEXT} {printf("texto "); return(TEXT);}
 ">="    { printf(">= "); return(MAIORIGUAL);  }
 "<="    { printf("<= "); return(MENORIGUAL);  }
 "=="    { printf("== "); return(IGUAL); }     
 "!="    {printf("!= "); return(DIFERENTE);}
+"+="    {printf("+= "); return(MAISIGUAL);}
 "=" {printf("atribuicao "); return(ASSGNOP);}
 "[]" {printf("array "); return(ARRAY);}
 {ID} { printf("identificador "); return(IDENTIFIER);}

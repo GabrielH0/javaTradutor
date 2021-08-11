@@ -5,7 +5,7 @@ extern int yylineno;
 %}
 %define parse.error verbose
 %start program
-%token CLASS IDENTIFIER MAIN
+%token CLASS IDENTIFIER MAIN FOR
 %token PUBLIC PRIVATE
 %token STATIC
 %token VOID
@@ -13,7 +13,7 @@ extern int yylineno;
 %token ASSGNOP NEW
 %token TEXT
 %token NUMBER_FLOAT
-%token MAIORIGUAL IGUAL DIFERENTE MENORIGUAL 
+%token MAIORIGUAL IGUAL DIFERENTE MENORIGUAL MAISIGUAL
 
 
 %%
@@ -61,6 +61,7 @@ methodScope: /* empty */
 operations:
 variable_declaration
 | IDENTIFIER ASSGNOP exp
+| FOR '(' FLT IDENTIFIER ';' exp ';' incFor ')' '{' '}' 
 ;
 
 
@@ -91,6 +92,12 @@ expList: /* empty */
 
 expExtended: /* empty */
 | ',' exp
+;
+
+incFor: IDENTIFIER '+' '+'
+| '+' '+' IDENTIFIER
+| IDENTIFIER MAISIGUAL exp
+| IDENTIFIER ASSGNOP exp
 ;
 
 %%
