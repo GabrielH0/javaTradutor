@@ -14,6 +14,9 @@ class foo {
         aux = aux == aux;
         aux = foo.getYes(a,a + 1.0);
         for (float j ; j<10.0; j++) { };
+        System.out.println("print");
+        b = System.in.read();
+
     }
 
     public static void main (String[] args) {

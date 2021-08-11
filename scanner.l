@@ -20,6 +20,11 @@ String {printf("tipo "); return(STR);}
 float {printf("tipo "); return(FLT);}
 new {printf("new "); return(NEW);}
 for {printf("for "); return(FOR);}
+System  {printf("system"); return(SYSTEM);}
+out {printf("out"); return(OUT);}
+in  {printf("in"); return(IN);}
+read    {printf("read"); return(READ);}
+println {printf("println"); return(PRINTLN);}
 [-+]?{DIGIT}*"."{DIGIT}+ { printf("Real "); return(NUMBER_FLOAT);   }
 {TEXT} {printf("texto "); return(TEXT);}
 ">="    { printf(">= "); return(MAIORIGUAL);  }

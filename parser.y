@@ -10,7 +10,7 @@ extern int yylineno;
 %token STATIC
 %token VOID
 %token STR ARRAY FLT
-%token ASSGNOP NEW
+%token ASSGNOP NEW SYSTEM OUT PRINTLN IN READ
 %token TEXT
 %token NUMBER_FLOAT
 %token MAIORIGUAL IGUAL DIFERENTE MENORIGUAL MAISIGUAL
@@ -61,7 +61,10 @@ methodScope: /* empty */
 operations:
 variable_declaration
 | IDENTIFIER ASSGNOP exp
-| FOR '(' FLT IDENTIFIER ';' exp ';' incFor ')' '{' '}' 
+| IDENTIFIER ASSGNOP SYSTEM '.' IN '.' READ '(' ')'
+| SYSTEM '.' IN '.' READ '(' ')'
+| FOR '(' FLT IDENTIFIER ';' exp ';' incFor ')' '{' methodScope '}' 
+| SYSTEM '.' OUT '.' PRINTLN '('exp')'
 ;
 
 
