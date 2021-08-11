@@ -10,7 +10,10 @@ extern int yylineno;
 %token STATIC
 %token VOID
 %token STR ARRAY FLT
-
+%token ASSGNOP NEW
+%token TEXT
+%token NUMBER_FLOAT
+%token MAIORIGUAL IGUAL DIFERENTE MENORIGUAL 
 
 
 %%
@@ -20,8 +23,8 @@ CLASS IDENTIFIER '{' classScope '}'
 ;
 
 classScope: /* empty */ 
-| PUBLIC variable ';' classScope
-| PRIVATE variable ';' classScope
+| PUBLIC variable_declaration ';' classScope
+| PRIVATE variable_declaration ';' classScope
 | PUBLIC method classScope
 | PRIVATE method classScope
 | PUBLIC mainMethod classScope
@@ -36,7 +39,7 @@ paramExtend:/* empty */
 | ',' param
  ;
 
-variable: /* empty */
+variable_declaration: /* empty */
 | STR IDENTIFIER variableExtend
 | FLT IDENTIFIER variableExtend
 ;
@@ -48,7 +51,7 @@ method: /* empty */
 variableExtend: /* empty */
 | ',' IDENTIFIER;
 
-mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{' '}'
+mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{'methodScope '}'
 ;
 
 methodScope: /* empty */
@@ -56,9 +59,31 @@ methodScope: /* empty */
 ;
 
 operations:
-variable
+variable_declaration
+| IDENTIFIER ASSGNOP exp
 ;
 
+
+exp :  NUMBER_FLOAT
+| TEXT
+| IDENTIFIER 
+| NEW IDENTIFIER '(' ')'
+| exp MAIORIGUAL exp
+| exp MENORIGUAL exp
+| exp '<' 
+| exp '=' 
+| exp '>' 
+| exp '+' 
+| exp '-' 
+| exp '*' 
+| exp '/' 
+| exp '&' '&' exp
+| exp '|' '|' exp
+| '!' exp
+| exp IGUAL exp
+| exp DIFERENTE exp
+| 
+;
 
 %%
 

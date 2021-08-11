@@ -5,6 +5,13 @@ class foo {
 
     public String getYes( float i, String q) {
         String aux, aux2;
+        aux = "String029103";
+        aux = 1.2;
+        aux = new Object();
+        aux = 0.0 >= 0.0 ;
+        aux = aux || aux;
+        aux = aux && aux;
+        aux = aux == aux;
     }
 
     public static void main (String[] args) {
