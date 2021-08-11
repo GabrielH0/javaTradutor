@@ -1,5 +1,5 @@
 class Main { 
-    public String a, b;
+    public String b,l;
     public float a;
     private String b;
 
@@ -12,10 +12,12 @@ class Main {
         aux = aux || aux;
         aux = aux && aux;
         aux = aux == aux;
-        aux = foo.getYes(a,a + 1.0);
+        a = a + b;
+        aux = Main.method(a,a + 1.0);
         for (float j ; j<10.0; j++) { };
         System.out.println("print");
         b = System.in.read();
+        b= 4.5;
 
     }
 

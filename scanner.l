@@ -26,7 +26,7 @@ in  {printf("in"); return(IN);}
 read    {printf("read"); return(READ);}
 println {printf("println"); return(PRINTLN);}
 [-+]?{DIGIT}*"."{DIGIT}+ { printf("Real "); return(NUMBER_FLOAT);   }
-{TEXT} {printf("texto "); return(TEXT);}
+{TEXT} {printf("texto "); yylval.ystr = stringpool(yytext); return(TEXT);}
 ">="    { printf(">= "); return(MAIORIGUAL);  }
 "<="    { printf("<= "); return(MENORIGUAL);  }
 "=="    { printf("== "); return(IGUAL); }     
@@ -34,7 +34,7 @@ println {printf("println"); return(PRINTLN);}
 "+="    {printf("+= "); return(MAISIGUAL);}
 "=" {printf("atribuicao "); return(ASSGNOP);}
 "[]" {printf("array "); return(ARRAY);}
-{ID} { printf("identificador "); return(IDENTIFIER);}
+{ID} { printf("identificador "); yylval.ystr = stringpool(yytext); return(IDENTIFIER);}
 "\n"     { printf("\n");}
 [ \t]+
 .        { printf("%c",yytext[0]); return(yytext[0]); }
