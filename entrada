@@ -1,7 +1,9 @@
 class Main { 
+    public String attrString = "teste", teste2 = "teste1";
     public String b,l;
     public float a;
     private String b;
+    private float f = 0.0, f2, f3 = 1.0;
 
     public String method( float i, String q) {
         String aux, aux2;
@@ -14,7 +16,7 @@ class Main {
         aux = aux == aux;
         a = a + b;
         aux = Main.method(a,a + 1.0);
-        for (float j ; j<10.0; j++) { };
+        for (la = 0.0; j<10.0; b="true") { };
         System.out.println("print");
         b = System.in.read();
         b= 4.5;

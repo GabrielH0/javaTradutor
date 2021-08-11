@@ -68,13 +68,28 @@ variable_declaration: /* empty */
 		AddVAR($2, CHAR);
 	}
 }
+| STR IDENTIFIER ASSGNOP TEXT variableExtendStr {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	}
+	AddVAR($2, CHAR);
+	
+}
 | FLT IDENTIFIER variableExtendFloat {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
-	} else {
-		AddVAR($2, FLO);
 	}
+	AddVAR($2, FLO);
+	
+}
+| FLT IDENTIFIER ASSGNOP NUMBER_FLOAT variableExtendFloat {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	}
+	AddVAR($2, FLO);
 }
 ;
 
@@ -87,20 +102,35 @@ variableExtendStr: /* empty */
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
-	} else {
-		AddVAR($2, CHAR);
 	}
-};
+	AddVAR($2, CHAR);
+}
+| ',' IDENTIFIER ASSGNOP TEXT variableExtendStr {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	}
+	AddVAR($2, CHAR);	
+}
+;
 
 variableExtendFloat: /* empty */
 | ',' IDENTIFIER variableExtendFloat{
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
-	} else {
-		AddVAR($2, FLO);
 	}
-};
+	AddVAR($2, FLO);
+	
+}
+| ',' IDENTIFIER ASSGNOP NUMBER_FLOAT variableExtendFloat {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	} 
+	AddVAR($2, FLO);
+}
+;
 
 mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{'methodScope '}'
 ;
@@ -120,7 +150,9 @@ variable_declaration
 }
 | IDENTIFIER ASSGNOP SYSTEM '.' IN '.' READ '(' ')'
 | SYSTEM '.' IN '.' READ '(' ')'
-| FOR '(' FLT IDENTIFIER ';' exp ';' incFor ')' '{' methodScope '}' 
+| FOR '(' forVariable ';' exp {
+    ASSERT( ($5==BOOL), "Tipo incompativel de dados");
+} ';' incFor ')' '{' methodScope '}' 
 | SYSTEM '.' OUT '.' PRINTLN '('exp')'
 ;
 
@@ -190,10 +222,59 @@ expExtended: /* empty */
 | ',' exp
 ;
 
-incFor: IDENTIFIER '+' '+'
-| '+' '+' IDENTIFIER
-| IDENTIFIER MAISIGUAL exp
-| IDENTIFIER ASSGNOP exp
+incFor: IDENTIFIER '+' '+' {
+    VAR *p=FindVAR($1);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
+}
+| '+' '+' IDENTIFIER {
+    VAR *p=FindVAR($3);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
+}
+| IDENTIFIER MAISIGUAL exp {
+    VAR *p=FindVAR($1);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
+}
+| IDENTIFIER ASSGNOP exp {
+    VAR *p=FindVAR($1);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    ASSERT( (p!=NULL && (p->type==$3)), "Tipos incompativeis de dados");
+}
+;
+
+forVariable: IDENTIFIER {
+    VAR *p=FindVAR($1);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+}
+| IDENTIFIER  ASSGNOP exp {
+    VAR *p=FindVAR($1);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+	if (p!=NULL) {
+        ASSERT( (p->type == $3), "Tipos incompativeis de dados");
+    }
+	AddVAR($1, FLO);
+	
+}
+| FLT IDENTIFIER {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	} else {
+		AddVAR($2, FLO);
+	}
+}
+| FLT IDENTIFIER ASSGNOP exp {
+    VAR *p=FindVAR($2);
+	if (p != NULL && p->scope == g_scope) {
+		printf("Já existe uma variável declarada com esse nome");
+	} else if (p!=NULL) {
+        ASSERT( (p->type == $4), "Tipos incompativeis de dados");
+    }
+	AddVAR($2, FLO);
+	
+}
 ;
 
 %%
