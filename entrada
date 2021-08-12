@@ -1,5 +1,5 @@
-class Main { 
-    public String attrString = "teste", teste2 = "teste1";
+public class Main { 
+    public String testeString = "teste", teste2 = "teste1";
     public String b,l;
     public float a;
     private String b;
@@ -15,8 +15,8 @@ class Main {
         aux = aux && aux;
         aux = aux == aux;
         a = a + b;
-        aux = Main.method(a,a + 1.0);
-        for (la = 0.0; j<10.0; b="true") { };
+        //aux = Main.method(a,a + 1.0);
+        for (float i = 0.0; i<10.0; i++) { };
         System.out.println("print");
         b = System.in.read();
         b= 4.5;

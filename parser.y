@@ -5,6 +5,7 @@
 extern int yylineno;
 extern int g_scope;
 extern VAR *SymTab;
+FILE * output;
 #define UNDECL  0
 #define CHAR    1
 #define FLO     2
@@ -16,7 +17,8 @@ extern VAR *SymTab;
 %define parse.error verbose
 %union {
 	char * ystr;
-    int   yint;
+	int   yint;
+	float yfloat;
 }
 %start program
 %token CLASS MAIN FOR
@@ -27,7 +29,7 @@ extern VAR *SymTab;
 %token STR ARRAY FLT
 %token ASSGNOP NEW SYSTEM OUT PRINTLN IN READ
 %token <ystr> TEXT
-%token <yint> NUMBER_FLOAT
+%token <yfloat> NUMBER_FLOAT
 %token MAIORIGUAL IGUAL DIFERENTE MENORIGUAL MAISIGUAL
 %left '>' '<' '=' MAIORIGUAL MENORIGUAL
 %left '-' '+'
@@ -38,72 +40,78 @@ extern VAR *SymTab;
 
 %%
 
-program: PUBLIC CLASS IDENTIFIER '{' classScope '}' ||
-CLASS IDENTIFIER '{' classScope '}'
+program: {fprintf(output, "#include <iostream> \n#include <string> \nusing namespace std;\n"); } PUBLIC CLASS IDENTIFIER '{' {fprintf(output, "class %s {\n", $4);} classScope '}' { fprintf(output, "};"); }
+| {fprintf(output, "#include <iostream> \n#include <string> \nusing namespace std;\n"); } CLASS IDENTIFIER '{' {fprintf(output, "class %s {\n", $3);} classScope '}' { fprintf(output, "};"); }
 ;
 
 classScope: /* empty */ 
-| PUBLIC variable_declaration ';' classScope
-| PRIVATE variable_declaration ';' classScope
-| PUBLIC method classScope
-| PRIVATE method classScope
-| PUBLIC mainMethod classScope
+| PUBLIC { fprintf(output, "public: \n"); } declaration classScope 
+| PRIVATE { fprintf(output, "private: \n"); } declaration classScope
+;
+
+declaration : variable_declaration ';'
+| method
+| mainMethod
 ;
 
 param : /* empty */ 
-| FLT IDENTIFIER paramExtend  
-| STR IDENTIFIER paramExtend
+| FLT IDENTIFIER paramExtend {fprintf(output, "float %s", $2);} 
+| STR IDENTIFIER paramExtend {fprintf(output, "string %s", $2);}
 ;
 
 paramExtend:/* empty */
-| ',' param
+| ',' param {fprintf(output, ", ");}
  ;
 
 variable_declaration: /* empty */
-| STR IDENTIFIER variableExtendStr {
+| STR IDENTIFIER { fprintf(output, "string %s", $2); } variableExtendStr {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	} else {
 		AddVAR($2, CHAR);
 	}
+    fprintf(output, ";\n");
 }
-| STR IDENTIFIER ASSGNOP TEXT variableExtendStr {
+| STR IDENTIFIER ASSGNOP TEXT { fprintf(output, "string %s = %s", $2, $4); } variableExtendStr {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, CHAR);
-	
+	fprintf(output, ";\n");
 }
-| FLT IDENTIFIER variableExtendFloat {
+| FLT IDENTIFIER { fprintf(output, "float %s", $2); } variableExtendFloat {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, FLO);
-	
+	fprintf(output, ";\n");
+
 }
-| FLT IDENTIFIER ASSGNOP NUMBER_FLOAT variableExtendFloat {
+| FLT IDENTIFIER ASSGNOP NUMBER_FLOAT { fprintf(output, "float %s = %4.2f", $2, $4); } variableExtendFloat {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, FLO);
+    fprintf(output, ";\n");
 }
 ;
 
 method: /* empty */
-| STR IDENTIFIER'(' param ')' '{' methodScope '}'
+| STR IDENTIFIER'(' { fprintf(output, "string %s (", $2); } param ')' {fprintf(output, ")");} '{' {fprintf(output, "{\n");} methodScope '}' {fprintf(output, "}\n");}
 | FLT IDENTIFIER '(' param ')' '{' methodScope '}' 
 
-variableExtendStr: /* empty */
+variableExtendStr: /* empty */ 
 | ',' IDENTIFIER variableExtendStr{
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, CHAR);
+    { fprintf(output, ",%s", $2); }
 }
 | ',' IDENTIFIER ASSGNOP TEXT variableExtendStr {
     VAR *p=FindVAR($2);
@@ -111,6 +119,7 @@ variableExtendStr: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, CHAR);	
+    { fprintf(output, ",%s = %s", $2, $4); }
 }
 ;
 
@@ -121,7 +130,7 @@ variableExtendFloat: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, FLO);
-	
+	{ fprintf(output, ",%s", $2); }
 }
 | ',' IDENTIFIER ASSGNOP NUMBER_FLOAT variableExtendFloat {
     VAR *p=FindVAR($2);
@@ -129,85 +138,91 @@ variableExtendFloat: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	} 
 	AddVAR($2, FLO);
+    { fprintf(output, ",%s = %4.2f", $2, $4); }
 }
 ;
 
-mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' '{'methodScope '}'
+mainMethod: STATIC VOID MAIN '('STR ARRAY IDENTIFIER')' { fprintf(output, "int main () {\n"); }
+ '{'methodScope '}' { fprintf(output, "}\n"); }
+
 ;
 
 methodScope: /* empty */
-| methodScope operations ';'
+| methodScope operations ';' {fprintf(output, ";\n");}
 ;
 
 operations:
 variable_declaration
-| IDENTIFIER ASSGNOP exp {
+| IDENTIFIER ASSGNOP { fprintf(output, "%s =", $1); } exp {
     VAR *p = FindVAR($1);
 	ASSERT( (p!=NULL),"Identificador Não declarado");
-    if (p!=NULL && p->type != $3 ) {
+    if (p!=NULL && p->type != $4 ) {
         printf("Tipos incompativeis de dados");
     }
 }
-| IDENTIFIER ASSGNOP SYSTEM '.' IN '.' READ '(' ')'
-| SYSTEM '.' IN '.' READ '(' ')'
-| FOR '(' forVariable ';' exp {
-    ASSERT( ($5==BOOL), "Tipo incompativel de dados");
-} ';' incFor ')' '{' methodScope '}' 
-| SYSTEM '.' OUT '.' PRINTLN '('exp')'
+| IDENTIFIER ASSGNOP SYSTEM '.' IN '.' READ '(' ')' { fprintf(output, "cin >> %s", $1); }
+| FOR '(' { fprintf(output, "for ("); } forVariable ';' { fprintf(output, ";");} exp {
+    ASSERT( ($7==BOOL), "Tipo incompativel de dados");
+} ';' { fprintf(output, ";"); } incFor ')' { fprintf(output, ")"); } '{' { fprintf(output, "{\n "); } methodScope '}' { fprintf(output, "}\n");}
+| SYSTEM '.' OUT '.' PRINTLN { fprintf(output, "cout <<"); } '('exp')'
 ;
 
 
-exp :  NUMBER_FLOAT
+exp :  NUMBER_FLOAT { fprintf(output, "%4.2f", $1);}
 | TEXT {
     $$ = CHAR;
+    fprintf(output, "%s", $1);
 }
 | IDENTIFIER {
     VAR *p = FindVAR($1);
     ASSERT( (p != NULL), "Identificador nao declarado");
     $$ = (p!=NULL) ? p->type:UNDECL; 
+    fprintf(output, "%s", $1);
 }
 | IDENTIFIER '.' IDENTIFIER'(' expList ')' {
     VAR *p = FindVAR($3);
     ASSERT( (p != NULL), "Identificador nao declarado");
     $$ = (p!=NULL) ? p->type : UNDECL;
+
 }
 | NEW IDENTIFIER '(' ')' {
     VAR *p = FindVAR($2);
     ASSERT( (p != NULL), "Identificador nao declarado");
     $$ = (p!=NULL) ? p->type:UNDECL; 
+    fprintf(output, "new %s ()", $2);
 }
-| exp MAIORIGUAL exp { $$ = BOOL; }
-| exp MENORIGUAL exp { $$ = BOOL; }
-| exp '<' exp { $$ = BOOL; }
-| exp IGUAL exp { $$ = BOOL; }
-| exp '>' exp { $$ = BOOL; }
-| exp '&' '&' exp { $$ = BOOL; }
-| exp '|' '|' exp { $$ = BOOL; }
-| '!' exp { $$ = BOOL; }
-| exp DIFERENTE exp { $$ = BOOL; }
-| exp '+' exp {
-    if ($1 == CHAR || $3 == CHAR) {
+| exp MAIORIGUAL { fprintf(output, ">=");} exp { $$ = BOOL; }
+| exp MENORIGUAL { fprintf(output, "<=");} exp { $$ = BOOL; }
+| exp '<' {fprintf(output, "<");} exp { $$ = BOOL; }
+| exp IGUAL { fprintf(output, "==");} exp { $$ = BOOL; }
+| exp '>' { fprintf(output, ">");} exp { $$ = BOOL; }
+| exp '&' '&' { fprintf(output, "&&");} exp { $$ = BOOL; }
+| exp '|' '|' {fprintf(output, "||");} exp { $$ = BOOL; }
+| '!' { fprintf(output, "!"); } exp { $$ = BOOL; }
+| exp DIFERENTE { fprintf(output, "!="); } exp { $$ = BOOL; }
+| exp '+' {fprintf(output, "+");} exp {
+    if ($1 == CHAR || $4 == CHAR) {
         printf("Tipo incompativel de dados");
     } else { 
         $$ = FLO;
     }
 }
-| exp '-' exp {
-    if ($1 == CHAR || $3 == CHAR) {
+| exp '-' { fprintf(output, "-"); } exp {
+    if ($1 == CHAR || $4 == CHAR) {
         printf("Tipo incompativel de dados");
     } else { 
         $$ = FLO;
     }
 }
-| exp '*' exp {
-    if ($1 == CHAR || $3 == CHAR) {
+| exp '*' { fprintf(output, "*"); } exp {
+    if ($1 == CHAR || $4 == CHAR) {
         printf("Tipo incompativel de dados");
     } else { 
         $$ = FLO;
     }
 }
-| exp '/' exp {
-    if ($1 == CHAR || $3 == CHAR) {
+| exp '/' { fprintf(output, "/"); } exp {
+    if ($1 == CHAR || $4 == CHAR) {
         printf("Tipo incompativel de dados");
     } else { 
         $$ = FLO;
@@ -219,43 +234,45 @@ expList: /* empty */
 ;
 
 expExtended: /* empty */
-| ',' exp
+| ',' exp { fprintf(output, ", "); }
 ;
 
 incFor: IDENTIFIER '+' '+' {
     VAR *p=FindVAR($1);
     ASSERT( (p!=NULL),"Identificador Não declarado");
     ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
+    fprintf(output, "%s++", $1 );
 }
 | '+' '+' IDENTIFIER {
     VAR *p=FindVAR($3);
     ASSERT( (p!=NULL),"Identificador Não declarado");
     ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
+    fprintf(output, "++%s", $3 );
 }
-| IDENTIFIER MAISIGUAL exp {
+| IDENTIFIER MAISIGUAL { fprintf(output, "%s+=", $1 ); } exp {
     VAR *p=FindVAR($1);
     ASSERT( (p!=NULL),"Identificador Não declarado");
     ASSERT( (p!=NULL && p->type==FLO), "Tipos incompativeis de dados");
 }
-| IDENTIFIER ASSGNOP exp {
+| IDENTIFIER ASSGNOP { fprintf(output, "%s=", $1); } exp {
     VAR *p=FindVAR($1);
     ASSERT( (p!=NULL),"Identificador Não declarado");
-    ASSERT( (p!=NULL && (p->type==$3)), "Tipos incompativeis de dados");
+    ASSERT( (p!=NULL && (p->type==$4)), "Tipos incompativeis de dados");
 }
 ;
 
 forVariable: IDENTIFIER {
     VAR *p=FindVAR($1);
     ASSERT( (p!=NULL),"Identificador Não declarado");
+    fprintf(output, "%s", $1);
 }
-| IDENTIFIER  ASSGNOP exp {
+| IDENTIFIER  ASSGNOP { fprintf(output, "%s = ", $1); } exp {
     VAR *p=FindVAR($1);
     ASSERT( (p!=NULL),"Identificador Não declarado");
 	if (p!=NULL) {
-        ASSERT( (p->type == $3), "Tipos incompativeis de dados");
+        ASSERT( (p->type == $4), "Tipos incompativeis de dados");
     }
 	AddVAR($1, FLO);
-	
 }
 | FLT IDENTIFIER {
     VAR *p=FindVAR($2);
@@ -264,16 +281,16 @@ forVariable: IDENTIFIER {
 	} else {
 		AddVAR($2, FLO);
 	}
+    fprintf(output, "float %s", $2);
 }
-| FLT IDENTIFIER ASSGNOP exp {
+| FLT IDENTIFIER ASSGNOP { fprintf(output, "float %s = ", $2); } exp {
     VAR *p=FindVAR($2);
 	if (p != NULL && p->scope == g_scope) {
 		printf("Já existe uma variável declarada com esse nome");
 	} else if (p!=NULL) {
-        ASSERT( (p->type == $4), "Tipos incompativeis de dados");
+        ASSERT( (p->type == $5), "Tipos incompativeis de dados");
     }
 	AddVAR($2, FLO);
-	
 }
 ;
 
@@ -281,6 +298,7 @@ forVariable: IDENTIFIER {
 
 main( int argc, char *argv[] )
 {
+    output= fopen("output.c++", "w");
     init_stringpool(10000);
     if ( yyparse () == 0) printf("codigo sem erros sintáticos");
 
