@@ -12,7 +12,7 @@ string aux,aux2;
 float a;
 aux ="String029103";
 aux =1.20;
-aux =new Object ();
+aux =new Main ();
 aux =method();
 aux =0.00>=0.00;
 aux =aux||aux;

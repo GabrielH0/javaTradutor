@@ -191,12 +191,6 @@ exp :  NUMBER_FLOAT { fprintf(output, "%4.2f", $1);}
     $$ = (p!=NULL) ? p->type : UNDECL;
 
 }
-| IDENTIFIER ASSGNOP IDENTIFIER'(' expList ')' {
-    VAR *p = FindVAR($1);
-    ASSERT( (p != NULL), "Identificador nao declarado");
-    $$ = (p!=NULL) ? p->type : UNDECL;
-
-}
 | NEW IDENTIFIER '(' ')' {
     VAR *p = FindVAR($2);
     ASSERT( (p != NULL), "Identificador nao declarado");

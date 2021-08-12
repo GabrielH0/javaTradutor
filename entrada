@@ -7,7 +7,7 @@ public class Main {
         float a;
         aux = "String029103";
         aux = 1.2;
-        aux = new Object();
+        aux = new Main();
         aux = method();
         aux = 0.0 >= 0.0 ;
         aux = aux || aux;
