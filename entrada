@@ -1,30 +1,37 @@
 public class Main { 
     public String testeString = "teste", teste2 = "teste1";
-    public String b,l;
-    public float a;
-    private String b;
     private float f = 0.0, f2, f3 = 1.0;
 
     public String method( float i, String q) {
         String aux, aux2;
+        float a;
         aux = "String029103";
         aux = 1.2;
         aux = new Object();
+        aux = method();
         aux = 0.0 >= 0.0 ;
         aux = aux || aux;
         aux = aux && aux;
         aux = aux == aux;
-        a = a + b;
+        a = a + f2;
         //aux = Main.method(a,a + 1.0);
-        for (float i = 0.0; i<10.0; i++) { };
+        for (float i = 0.0; i<10.0; i++) { 
+            aux = "teste";
+        };
         System.out.println("print");
         b = System.in.read();
         b= 4.5;
 
     }
 
+    public float methodFloat(float f) {
+
+    }
+
     public static void main (String[] args) {
-        
+        System.out.println(testeString);
+        float f;
+        f = methodFloat(1.0);
     }
 
 }

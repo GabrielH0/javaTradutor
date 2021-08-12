@@ -49,7 +49,7 @@ classScope: /* empty */
 | PRIVATE { fprintf(output, "private: \n"); } declaration classScope
 ;
 
-declaration : variable_declaration ';'
+declaration : variable_declaration ';' {fprintf(output, ";\n");}
 | method
 | mainMethod
 ;
@@ -71,7 +71,6 @@ variable_declaration: /* empty */
 	} else {
 		AddVAR($2, CHAR);
 	}
-    fprintf(output, ";\n");
 }
 | STR IDENTIFIER ASSGNOP TEXT { fprintf(output, "string %s = %s", $2, $4); } variableExtendStr {
     VAR *p=FindVAR($2);
@@ -79,7 +78,6 @@ variable_declaration: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, CHAR);
-	fprintf(output, ";\n");
 }
 | FLT IDENTIFIER { fprintf(output, "float %s", $2); } variableExtendFloat {
     VAR *p=FindVAR($2);
@@ -87,7 +85,6 @@ variable_declaration: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, FLO);
-	fprintf(output, ";\n");
 
 }
 | FLT IDENTIFIER ASSGNOP NUMBER_FLOAT { fprintf(output, "float %s = %4.2f", $2, $4); } variableExtendFloat {
@@ -96,13 +93,22 @@ variable_declaration: /* empty */
 		printf("Já existe uma variável declarada com esse nome");
 	}
 	AddVAR($2, FLO);
-    fprintf(output, ";\n");
 }
 ;
 
 method: /* empty */
-| STR IDENTIFIER'(' { fprintf(output, "string %s (", $2); } param ')' {fprintf(output, ")");} '{' {fprintf(output, "{\n");} methodScope '}' {fprintf(output, "}\n");}
-| FLT IDENTIFIER '(' param ')' '{' methodScope '}' 
+| STR IDENTIFIER'(' { fprintf(output, "string %s (", $2); } param ')' {fprintf(output, ")");} '{' {fprintf(output, "{\n");} methodScope '}' {
+    VAR *p= FindVAR($2);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    AddVAR($2, CHAR);
+    fprintf(output, "}\n");
+}
+| FLT IDENTIFIER '(' { fprintf(output, "float %s (", $2); } param ')' {fprintf(output, ")");} '{' {fprintf(output, "{\n");} methodScope '}' {
+    VAR *p= FindVAR($2);
+    ASSERT( (p!=NULL),"Identificador Não declarado");
+    AddVAR($2, FLO);    
+    fprintf(output, "}\n");
+}
 
 variableExtendStr: /* empty */ 
 | ',' IDENTIFIER variableExtendStr{
@@ -179,8 +185,14 @@ exp :  NUMBER_FLOAT { fprintf(output, "%4.2f", $1);}
     $$ = (p!=NULL) ? p->type:UNDECL; 
     fprintf(output, "%s", $1);
 }
-| IDENTIFIER '.' IDENTIFIER'(' expList ')' {
-    VAR *p = FindVAR($3);
+| IDENTIFIER'(' { fprintf(output, "%s(", $1); } expList ')' { fprintf(output, ")"); } {
+    VAR *p = FindVAR($1);
+    ASSERT( (p != NULL), "Identificador nao declarado");
+    $$ = (p!=NULL) ? p->type : UNDECL;
+
+}
+| IDENTIFIER ASSGNOP IDENTIFIER'(' expList ')' {
+    VAR *p = FindVAR($1);
     ASSERT( (p != NULL), "Identificador nao declarado");
     $$ = (p!=NULL) ? p->type : UNDECL;
 
